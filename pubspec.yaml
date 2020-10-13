@@ -27,6 +27,7 @@ dependencies:
   material_design_icons_flutter: ^4.0.5655
   overlay_support: ^1.0.5
   flutter_speed_dial: ^1.2.5
+  http: ^0.12.2
 
 
   # The following adds the Cupertino Icons font to your application.

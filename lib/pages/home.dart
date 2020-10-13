@@ -1,13 +1,15 @@
 import 'dart:html';
 
+import 'package:ImpalaAdmin/pages/MultipleEntries.dart';
+import 'package:ImpalaAdmin/pages/SingleEntry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_maps/flutter_google_maps.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:ImpalaAdmin/widgets/Starrating.dart';
 import 'package:ImpalaAdmin/Models/Place.dart';
-import 'package:ImpalaAdmin/Models/Adress.dart';
+import 'package:ImpalaAdmin/New%20Models/Adress.dart';
+import 'package:ImpalaAdmin/widgets/CustomEntry.dart';
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
@@ -211,9 +213,13 @@ class HomeState extends State<Home> {
     "Select most North-Eastern Point",
   ];
 
-  int currentStep = 0;
   List<Place> places;
   Set<Marker> markers;
+  RichText appTitle;
+  final _key = GlobalKey<GoogleMapStateBase>();
+  int currentStep;
+  bool stepListVisible = false;
+  Function(GeoCoord) onMapTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -242,10 +248,41 @@ class HomeState extends State<Home> {
         body: new Stack(
           children: [
             new GoogleMap(
+              key: _key,
               initialPosition: new GeoCoord(49.865994, 8.661222),
               markers: markers,
               mapStyle: mapStyle,
+              onTap: onMapTapped,
             ),
+            new Align(
+                alignment: Alignment.topCenter,
+                child: new Visibility(
+                  visible: stepListVisible,
+                  child: new Container(
+                    padding: EdgeInsets.only(top: 40.0),
+                    child: new ListView.builder(
+                      itemCount: steps.length,
+                      itemBuilder: (context, index) {
+                        return new Padding(
+                          padding: EdgeInsets.only(bottom: 20.0),
+                          child: new Text(
+                            steps[index],
+                            textAlign: TextAlign.center,
+                            style: new TextStyle(
+                              color: currentStep == index
+                                  ? Colors.white
+                                  : Colors.grey,
+                              fontWeight: currentStep == index
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: currentStep == index ? 20 : 17,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                )),
             new Align(
                 alignment: Alignment.bottomRight,
                 child: new SpeedDial(
@@ -264,7 +301,8 @@ class HomeState extends State<Home> {
                     new SpeedDialChild(
                         backgroundColor: Colors.redAccent,
                         child: new Icon(MdiIcons.plusBoxMultipleOutline),
-                        label: "Add Multiple")
+                        label: "Add Multiple",
+                        onTap: showMultipleEntriesScreen)
                   ],
                 )),
           ],
@@ -299,7 +337,6 @@ class HomeState extends State<Home> {
           adressId: 0,
           averageUserrating: 4.2,
           contactEmail: "info@sitte-darmstadt.de",
-          descriptorArrays: null,
           imageUrl: "lib/assets/images/dreiklang.jpg",
           latitude: 49.880710,
           longitude: 8.661278),
@@ -316,7 +353,6 @@ class HomeState extends State<Home> {
           adressId: 0,
           averageUserrating: 4.2,
           contactEmail: "info@sitte-darmstadt.de",
-          descriptorArrays: null,
           imageUrl: "lib/assets/images/sitte.jpg",
           latitude: 49.869516,
           longitude: 8.656309),
@@ -333,7 +369,6 @@ class HomeState extends State<Home> {
           adressId: 0,
           averageUserrating: 4.2,
           contactEmail: "info@sitte-darmstadt.de",
-          descriptorArrays: null,
           imageUrl: "lib/assets/images/lahorepalace.jpg",
           latitude: 49.865663,
           longitude: 8.645714),
@@ -350,7 +385,6 @@ class HomeState extends State<Home> {
           adressId: 0,
           averageUserrating: 4.2,
           contactEmail: "info@sitte-darmstadt.de",
-          descriptorArrays: null,
           imageUrl: "lib/assets/images/sitte.jpg",
           latitude: 49.877737,
           longitude: 8.657380),
@@ -377,6 +411,7 @@ class HomeState extends State<Home> {
               backgroundColor: Colors.grey[850],
               appBar: new AppBar(
                 backgroundColor: Colors.grey[850],
+                centerTitle: true,
                 title: new Text(place.title),
                 leading: new IconButton(
                   icon: new Icon(Icons.close),
@@ -419,65 +454,20 @@ class HomeState extends State<Home> {
 
   void showSingleEntryScreen() {
     Navigator.maybePop(context);
-    showDialog(
-      context: context,
-      child: new Padding(
-          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.1),
-          child: new Container(
-            decoration: new BoxDecoration(
-              borderRadius: new BorderRadius.circular(20.0),
-              color: Colors.grey[850],
-            ),
-            child: new Scaffold(
-              backgroundColor: Colors.grey[850],
-              appBar: new AppBar(
-                backgroundColor: Colors.grey[850],
-                title: new Text("Add Single Place"),
-                leading: new IconButton(
-                  icon: new Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-              body: new CustomScrollView(
-                slivers: [
-                  new SliverToBoxAdapter(
-                    child: new Column(
-                      children: [
-                        new TextField(
-                          decoration: new InputDecoration(hintText: "Name"),
-                        ),
-                        new TextField(
-                          decoration: new InputDecoration(hintText: "Straße"),
-                        ),
-                        new TextField(
-                          decoration:
-                              new InputDecoration(hintText: "Hausnummer"),
-                        ),
-                        new TextField(
-                          decoration:
-                              new InputDecoration(hintText: "Postleitzahl"),
-                        ),
-                        new TextField(
-                          decoration: new InputDecoration(hintText: "Stadt"),
-                        ),
-                        new TextField(
-                          decoration:
-                              new InputDecoration(hintText: "Ländercode"),
-                        ),
-                        new TextField(
-                          decoration: new InputDecoration(hintText: "Lat"),
-                        ),
-                        new TextField(
-                          decoration: new InputDecoration(hintText: "Lon"),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          )),
-    );
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => new SingleEntry(),
+        ));
+  }
+
+  showMultipleEntriesScreen() {
+    Navigator.maybePop(context);
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+          builder: (context) => new MultipleEntries(),
+        ));
   }
 
   Marker findMarker(String info) {

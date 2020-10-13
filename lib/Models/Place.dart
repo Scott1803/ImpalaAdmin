@@ -1,4 +1,4 @@
-import 'Adress.dart';
+import '../New Models/Adress.dart';
 import 'Tags/TagPricepoint.dart';
 import 'Tags/TagStyle.dart';
 import 'Tags/TagType.dart';
@@ -27,8 +27,7 @@ class Place {
   String osmCuisine;
   String tagline;
   Adress adress;
-  Null descriptorArrays;
-  Membership membershipTypes;
+  Null membershipTypes;
   Null partner;
   TagPricepoint tagsPricepoint;
   TagStyle tagsStyle;
@@ -57,7 +56,6 @@ class Place {
       this.osmCuisine,
       this.tagline,
       this.adress,
-      this.descriptorArrays,
       this.membershipTypes,
       this.partner,
       this.tagsPricepoint,
@@ -88,7 +86,6 @@ class Place {
     tagline = json['tagline'];
     adress =
         json['Adress'] != null ? new Adress.fromJson(json['Adress']) : null;
-    descriptorArrays = json['descriptor_arrays'];
     membershipTypes = json['Membership_Types'] != null
         ? new Membership.fromJson(json['Membership_Types'])
         : null;
@@ -130,10 +127,7 @@ class Place {
     if (this.adress != null) {
       data['Adress'] = this.adress.toJson();
     }
-    data['descriptor_arrays'] = this.descriptorArrays;
-    if (this.membershipTypes != null) {
-      data['Membership_Types'] = this.membershipTypes.toJson();
-    }
+    data['Membership_Types'] = this.membershipTypes;
     data['Partner'] = this.partner;
     if (this.tagsPricepoint != null) {
       data['Tags_Pricepoint'] = this.tagsPricepoint.toJson();
