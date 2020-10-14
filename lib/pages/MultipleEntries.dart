@@ -1,8 +1,15 @@
+import 'package:ImpalaAdmin/New%20Models/BackgroundMediaSuggestion.dart';
+import 'package:ImpalaAdmin/New%20Models/DescriptiveTag.dart';
+import 'package:ImpalaAdmin/New%20Models/HeadTags.dart';
+import 'package:ImpalaAdmin/New%20Models/PlaceEditingData.dart';
+import 'package:ImpalaAdmin/New%20Models/PlaceSnippet.dart';
+import 'package:ImpalaAdmin/New%20Models/Rating.dart';
+import 'package:ImpalaAdmin/New%20Models/TitleSuggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_maps/flutter_google_maps.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:ImpalaAdmin/services/ApiService.dart';
-import 'package:ImpalaAdmin/Models/Place.dart';
+import 'package:ImpalaAdmin/New Models/Place.dart';
 import 'package:ImpalaAdmin/widgets/Starrating.dart';
 
 class MultipleEntries extends StatefulWidget {
@@ -406,8 +413,9 @@ class _MultipleEntriesState extends State<MultipleEntries> {
         );
         pageTitle = "Confirm Upload";
       });
-    } else if (places != null || places.length > 0) {}
+    } else if (places != null && places.length > 0) {}
     //On click, add objects to firestore DB.
+    await _service.insertPlace(places.first);
   }
 
   void showPlaceCard(BuildContext context, String info) {
@@ -443,7 +451,7 @@ class _MultipleEntriesState extends State<MultipleEntries> {
                       children: [
                         new Text(place.title),
                         new Starrating(
-                          rating: place.averageUserrating.toInt(),
+                          rating: place.rating.toInt(),
                         ),
                         new Text(
                             "${place.adress.streetName} ${place.adress.houseNumber}"),
@@ -456,7 +464,7 @@ class _MultipleEntriesState extends State<MultipleEntries> {
                           width: 270.0,
                           height: 480.0,
                           child: new Image.asset(
-                            place.imageUrl,
+                            place.backgroundUrl,
                             fit: BoxFit.cover,
                           ),
                         )
@@ -486,6 +494,41 @@ class _MultipleEntriesState extends State<MultipleEntries> {
     Marker marker =
         mapMarkers.firstWhere((element) => element.position == coordinates);
     return marker;
+  }
+
+  PlaceSnippet addSnippet(Place place) {
+    PlaceSnippet snippet = new PlaceSnippet();
+    snippet.placeId = place.placeId;
+    snippet.title = place.title;
+    snippet.rating = place.rating;
+    snippet.adress = place.adress;
+    snippet.latitude = place.latitude;
+    snippet.longitude = place.longitude;
+    snippet.thumnailUrl = place.thumnailUrl;
+    snippet.headTags = place.headTags;
+    snippet.descriptiveTags = place.descriptiveTags;
+    return snippet;
+  }
+
+  PlaceEditingData addDummyEditData(Place place) {
+    return new PlaceEditingData(
+        titleSuggestions: [
+          new TitleSuggestion(title: "Title 1", votes: 1, isSelected: false),
+          new TitleSuggestion(title: "Title 2", votes: 3, isSelected: false),
+        ],
+        ratingData: new Rating(amount: 2, ratingsAbsolute: 8, ratingAverage: 4),
+        headTags: [
+          new HeadTag(name: "Restaurant", votesFalse: 2, votesTrue: 4),
+          new HeadTag(name: "Schnell", votesFalse: 5, votesTrue: 1),
+        ],
+        backgroundMediaSuggestions: [
+          new BackgroundMediaSuggestion(
+              url: place.backgroundUrl, isSelected: true, votes: 2),
+        ],
+        descriptiveTagSuggestions: [
+          new DescriptiveTag(name: "Italian", votes: 3),
+          new DescriptiveTag(name: "Pasta", votes: 5),
+        ]);
   }
 
   @override

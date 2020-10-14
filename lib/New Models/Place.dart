@@ -6,6 +6,7 @@ import 'package:ImpalaAdmin/New%20Models/Payment.dart';
 import 'package:ImpalaAdmin/New%20Models/PlaceEditingData.dart';
 import 'package:ImpalaAdmin/New%20Models/PlaceSnippet.dart';
 import 'package:ImpalaAdmin/services/ConversionService.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Place {
   String placeId;
@@ -26,10 +27,34 @@ class Place {
   List<HeadTag> headTags; //Map
   List<DescriptiveTag>
       descriptiveTags; //Sub collection -> Needs to be added seperately!!
-  PlaceSnippet
-      snippet; //Reference to document -> Needs to be added seperately!!
-  PlaceEditingData
-      editingData; //Reference to document -> Needs to be added seperately!!
+  PlaceSnippet snippet;
+  PlaceEditingData editingData;
+  DocumentReference snippetReference;
+  DocumentReference editingDataReference;
+
+  Place({
+    this.placeId,
+    this.title,
+    this.adress,
+    this.paymentTypes,
+    this.latitude,
+    this.longitude,
+    this.websiteUrl,
+    this.backgroundUrl,
+    this.thumnailUrl,
+    this.rating,
+    this.yelpId,
+    this.contactEmail,
+    this.osmAmenity,
+    this.osmCuisine,
+    this.stories,
+    this.headTags,
+    this.descriptiveTags,
+    this.snippet,
+    this.editingData,
+    this.snippetReference,
+    this.editingDataReference,
+  });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
@@ -54,6 +79,8 @@ class Place {
     data['osm_cuisine'] = this.osmCuisine;
     data['head_tags'] =
         this.headTags.map<Map<String, dynamic>>((e) => e.toJson());
+    data['snippet_reference'] = this.snippetReference;
+    data['edit_data_reference'] = this.editingDataReference;
     return data;
   }
 
@@ -77,5 +104,7 @@ class Place {
     headTags = (json['head_tags'] as Iterable)
         .map<HeadTag>((e) => HeadTag.fromJson(e))
         .toList();
+    snippetReference = json['snippet_reference'];
+    editingDataReference = json['edit_data_reference'];
   }
 }

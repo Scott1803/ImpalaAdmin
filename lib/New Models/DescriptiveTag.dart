@@ -2,6 +2,8 @@ class DescriptiveTag {
   String name;
   int votes;
 
+  DescriptiveTag({this.name, this.votes});
+
   DescriptiveTag.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     votes = json['votes'];

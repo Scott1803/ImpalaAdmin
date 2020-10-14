@@ -13,6 +13,17 @@ class PlaceSnippet {
   double latitude;
   double longitude;
 
+  PlaceSnippet(
+      {this.placeId,
+      this.title,
+      this.rating,
+      this.headTags,
+      this.descriptiveTags,
+      this.adress,
+      this.thumnailUrl,
+      this.latitude,
+      this.longitude});
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['place_id'] = this.placeId;

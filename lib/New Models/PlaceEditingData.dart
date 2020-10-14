@@ -11,6 +11,13 @@ class PlaceEditingData {
   List<DescriptiveTag> descriptiveTagSuggestions;
   List<BackgroundMediaSuggestion> backgroundMediaSuggestions;
 
+  PlaceEditingData(
+      {this.titleSuggestions,
+      this.ratingData,
+      this.headTags,
+      this.descriptiveTagSuggestions,
+      this.backgroundMediaSuggestions});
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.titleSuggestions != null) {

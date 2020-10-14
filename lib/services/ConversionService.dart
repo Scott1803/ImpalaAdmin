@@ -3,7 +3,7 @@ import 'package:ImpalaAdmin/Models/Tags/TagStyle.dart';
 import 'package:ImpalaAdmin/Models/Tags/TagType.dart';
 import 'package:ImpalaAdmin/Models/Membership.dart';
 import 'package:ImpalaAdmin/New Models/Adress.dart';
-import 'package:ImpalaAdmin/Models/Place.dart';
+import 'package:ImpalaAdmin/New Models/Place.dart';
 import 'package:ImpalaAdmin/New Models/Payment.dart';
 
 class ConversionService {
@@ -88,34 +88,20 @@ class ConversionService {
       List<dynamic> mapValues = map.values.toList();
       Place place = new Place();
 
-      place.placeId = mapValues[0];
-      place.placeString = mapValues[1];
+      place.placeId = mapValues[1];
       place.title = mapValues[2];
-      place.descriptorArrayId = mapValues[3];
-      place.tagTypeId = mapValues[4];
-      place.tagStyleId = mapValues[5];
-      place.tagPricepointId = mapValues[6];
-      place.ecAccepted = mapValues[7];
       place.latitude = mapValues[8];
       place.longitude = mapValues[9];
-      place.adressId = mapValues[10];
       place.websiteUrl = mapValues[11];
-      place.imageUrl = mapValues[12];
-      place.averageUserrating = mapValues[13];
+      place.backgroundUrl = mapValues[12];
+      place.rating = mapValues[13];
       place.yelpId = mapValues[14];
-      place.partnerId = mapValues[15];
-      place.membershipPlanId = mapValues[16];
       place.contactEmail = mapValues[17];
       place.osmAmenity = mapValues[18];
       place.osmCuisine = mapValues[19];
-      place.tagline = mapValues[20];
       place.adress = ConversionService.mapToAdress(mapValues[21]);
-      place.membershipTypes = mapValues[23];
-      place.partner = mapValues[24];
-      place.tagsPricepoint =
-          ConversionService.mapToTagPricepoint(mapValues[25]);
-      place.tagsStyle = ConversionService.mapToTagStyle(mapValues[26]);
-      place.tagsType = ConversionService.mapToTagType(mapValues[27]);
+
+      //ToDo: Need to add remaining fields!! (Tags, snipped etc)
 
       return place;
     } else {
