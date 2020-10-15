@@ -6,7 +6,6 @@ import 'package:ImpalaAdmin/New%20Models/Payment.dart';
 import 'package:ImpalaAdmin/New%20Models/PlaceEditingData.dart';
 import 'package:ImpalaAdmin/New%20Models/PlaceSnippet.dart';
 import 'package:ImpalaAdmin/services/ConversionService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Place {
   String placeId;
@@ -29,8 +28,6 @@ class Place {
       descriptiveTags; //Sub collection -> Needs to be added seperately!!
   PlaceSnippet snippet;
   PlaceEditingData editingData;
-  DocumentReference snippetReference;
-  DocumentReference editingDataReference;
 
   Place({
     this.placeId,
@@ -52,8 +49,6 @@ class Place {
     this.descriptiveTags,
     this.snippet,
     this.editingData,
-    this.snippetReference,
-    this.editingDataReference,
   });
 
   Map<String, dynamic> toJson() {
@@ -69,18 +64,17 @@ class Place {
     }
     data['latitude'] = this.latitude;
     data['longitude'] = this.longitude;
-    data['website_url'] = this.websiteUrl;
+    if (this.websiteUrl != null) data['website_url'] = this.websiteUrl;
     data['background_url'] = this.backgroundUrl;
-    data['thumnail_url'] = this.thumnailUrl;
-    data['rating'] = this.rating;
-    data['yelp_id'] = this.yelpId;
-    data['contact_email'] = this.contactEmail;
+    if (this.thumnailUrl != null) data['thumnail_url'] = this.thumnailUrl;
+    if (this.rating != null) data['rating'] = this.rating;
+    if (this.yelpId != null) data['yelp_id'] = this.yelpId;
+    if (this.contactEmail != null) data['contact_email'] = this.contactEmail;
     data['osm_amenity'] = this.osmAmenity;
     data['osm_cuisine'] = this.osmCuisine;
-    data['head_tags'] =
-        this.headTags.map<Map<String, dynamic>>((e) => e.toJson());
-    data['snippet_reference'] = this.snippetReference;
-    data['edit_data_reference'] = this.editingDataReference;
+    if (this.headTags != null)
+      data['head_tags'] =
+          this.headTags.map<Map<String, dynamic>>((e) => e.toJson());
     return data;
   }
 
@@ -104,7 +98,5 @@ class Place {
     headTags = (json['head_tags'] as Iterable)
         .map<HeadTag>((e) => HeadTag.fromJson(e))
         .toList();
-    snippetReference = json['snippet_reference'];
-    editingDataReference = json['edit_data_reference'];
   }
 }

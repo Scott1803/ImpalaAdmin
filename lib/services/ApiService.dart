@@ -51,43 +51,21 @@ class ApiService {
     try {
       placeDocumentReference =
           await placesReference.add(new Map<String, dynamic>());
-    } catch (e) {
-      print(e);
-    }
+      //Place ID matches document ID for simplicity
+      place.placeId = placeDocumentReference.id;
 
-    try {
       snippetDocumentReference =
           placeSnippetsReference.doc(placeDocumentReference.id);
-    } catch (e) {
-      print(e);
-    }
-
-    try {
       await snippetDocumentReference.set(place.snippet.toJson());
-    } catch (e) {
-      print(e);
-    }
 
-    try {
       editingDataDocumentReference =
           editingDataReference.doc(placeDocumentReference.id);
-    } catch (e) {
-      print(e);
-    }
-
-    try {
       await editingDataDocumentReference.set(place.editingData.toJson());
+
+      await placeDocumentReference.set(place.toJson());
     } catch (e) {
       print(e);
-    }
-
-    place.snippetReference = snippetDocumentReference;
-    place.editingDataReference = editingDataDocumentReference;
-
-    try {
-      await placeDocumentReference.set(place.toJson());
-    } catch (e) {
-      await placeDocumentReference.set(place.toJson());
+      throw new Exception();
     }
   }
 

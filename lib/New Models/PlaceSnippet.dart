@@ -28,9 +28,10 @@ class PlaceSnippet {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['place_id'] = this.placeId;
     data['title'] = this.title;
-    data['rating'] = this.rating;
-    data['head_tags'] =
-        this.headTags.map<Map<String, dynamic>>((e) => e.toJson());
+    if (this.rating != null) data['rating'] = this.rating;
+    if (this.headTags != null)
+      data['head_tags'] =
+          this.headTags.map<Map<String, dynamic>>((e) => e.toJson());
     if (this.descriptiveTags != null) {
       data['descriptive_tags'] =
           this.descriptiveTags.map<Map<String, dynamic>>((e) => e.toJson());
@@ -38,7 +39,7 @@ class PlaceSnippet {
     if (this.adress != null) {
       data['Adress'] = this.adress.toJson();
     }
-    data['thumnail_url'] = this.thumnailUrl;
+    if (this.thumnailUrl != null) data['thumnail_url'] = this.thumnailUrl;
     data['latitude'] = this.latitude;
     data['longitude'] = this.longitude;
     return data;

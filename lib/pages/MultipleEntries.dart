@@ -213,6 +213,8 @@ class _MultipleEntriesState extends State<MultipleEntries> {
 
   String pageTitle;
   Widget floatingActionChild;
+  AddingEntriesState currentProgress;
+
   Set<Marker> mapMarkers;
 
   List<String> steps = [
@@ -308,7 +310,7 @@ class _MultipleEntriesState extends State<MultipleEntries> {
                 child: new FloatingActionButton(
                   backgroundColor: Colors.redAccent[700],
                   child: floatingActionChild,
-                  onPressed: confirmClicked,
+                  onPressed: floatingActionAction,
                 ),
               ))
         ],
@@ -361,61 +363,114 @@ class _MultipleEntriesState extends State<MultipleEntries> {
     });
   }
 
-  Future confirmClicked() async {
+  Future floatingActionAction() async {
+    switch (currentProgress) {
+      case AddingEntriesState.start:
+        await uploadClicked();
+        break;
+      case AddingEntriesState.selected:
+        await confirmClicked();
+        break;
+      default:
+        return () {};
+    }
+  }
+
+  Future uploadClicked() async {
     //Check if all values are valid, if not display popup and make user create entries again.
-    if (places == null || places.length == 0) {
-      setState(() {
-        floatingActionChild = new Padding(
-          padding: EdgeInsets.all(10.0),
-          child: new CircularProgressIndicator(
-            valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        );
-        pageTitle = "Retrieving Place Data...";
-      });
+    setState(() {
+      currentProgress = AddingEntriesState.selected;
+      floatingActionChild = new Padding(
+        padding: EdgeInsets.all(10.0),
+        child: new CircularProgressIndicator(
+          valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
+      );
+      pageTitle = "Retrieving Place Data...";
+    });
+    try {
+      places = await _service.createPlaces(
+          latSouth: firstCoordinates.latitude,
+          lonWest: firstCoordinates.longitude,
+          latNorth: lastCoordinates.latitude,
+          lonEast: lastCoordinates.longitude);
+    } catch (e) {
+      places = null;
+      showDialog(
+          context: context,
+          child: new AlertDialog(
+            title: new Text("Error Retrieving Data"),
+            content: new Text(
+                "Please try again. Make sure the area you are selecting is valied"),
+            actions: [
+              new IconButton(
+                  icon: new Icon(Icons.cancel),
+                  onPressed: () => Navigator.pop(context))
+            ],
+          ));
+    }
+    GoogleMap.of(_mapKey).clearMarkers();
+    GoogleMap.of(_mapKey).clearPolygons();
+    places.forEach((place) {
+      Marker marker = new Marker(new GeoCoord(place.latitude, place.longitude),
+          icon: "lib/assets/map_marker_small.png",
+          info: place.placeId.toString(),
+          onTap: (info) => showPlaceCard(context, info));
+
+      mapMarkers.add(marker);
+      GoogleMap.of(_mapKey).addMarker(marker);
+    });
+    setState(() {
+      floatingActionChild = new Icon(
+        MdiIcons.uploadMultiple,
+        color: Colors.white,
+      );
+      pageTitle = "Confirm Upload";
+    });
+  }
+
+  Future confirmClicked() async {
+    setState(() {
+      currentProgress = AddingEntriesState.confirmed;
+    });
+    if (places != null && places.length > 0) {
       try {
-        places = await _service.createPlaces(
-            latSouth: firstCoordinates.latitude,
-            lonWest: firstCoordinates.longitude,
-            latNorth: lastCoordinates.latitude,
-            lonEast: lastCoordinates.longitude);
-      } catch (e) {
-        places = null;
+        places.forEach((place) async {
+          await _service.insertPlace(place);
+        });
         showDialog(
             context: context,
             child: new AlertDialog(
-              title: new Text("Error Retrieving Data"),
+              title: new Text("Successfully Added Places!"),
               content: new Text(
-                  "Please try again. Make sure the area you are selecting is valied"),
+                "${places.length} entries were added to the database.\nClick \"Done\" to return to selection.",
+                textAlign: TextAlign.center,
+              ),
               actions: [
-                new IconButton(
-                    icon: new Icon(Icons.cancel),
+                new TextButton.icon(
+                    icon: new Icon(Icons.done),
+                    label: new Text("Done"),
+                    onPressed: () => Navigator.pop(context))
+              ],
+            ));
+      } catch (e) {
+        showDialog(
+            context: context,
+            child: new AlertDialog(
+              title: new Text("Error Adding Places!"),
+              content: new Text(
+                "There was an error adding the entries to the database",
+                textAlign: TextAlign.center,
+              ),
+              actions: [
+                new TextButton.icon(
+                    icon: new Icon(Icons.arrow_back),
+                    label: new Text("Back"),
                     onPressed: () => Navigator.pop(context))
               ],
             ));
       }
-      GoogleMap.of(_mapKey).clearMarkers();
-      GoogleMap.of(_mapKey).clearPolygons();
-      places.forEach((place) {
-        Marker marker = new Marker(
-            new GeoCoord(place.latitude, place.longitude),
-            icon: "lib/assets/map_marker_small.png",
-            info: place.placeId.toString(),
-            onTap: (info) => showPlaceCard(context, info));
-
-        mapMarkers.add(marker);
-        GoogleMap.of(_mapKey).addMarker(marker);
-      });
-      setState(() {
-        floatingActionChild = new Icon(
-          MdiIcons.uploadMultiple,
-          color: Colors.white,
-        );
-        pageTitle = "Confirm Upload";
-      });
-    } else if (places != null && places.length > 0) {}
-    //On click, add objects to firestore DB.
-    await _service.insertPlace(places.first);
+    }
   }
 
   void showPlaceCard(BuildContext context, String info) {
@@ -542,5 +597,8 @@ class _MultipleEntriesState extends State<MultipleEntries> {
       color: Colors.white,
     );
     pageTitle = "Add Multiple Entries";
+    currentProgress = AddingEntriesState.start;
   }
 }
+
+enum AddingEntriesState { start, selected, confirmed }
